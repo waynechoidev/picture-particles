@@ -12,8 +12,18 @@ import Texture from "./lib/texture";
 
 const WIDTH = window.innerWidth;
 const HEIGHT = window.innerHeight;
-const picW = 600;
-const picH = 800;
+const maxWidth = WIDTH * 0.8;
+const maxHeight = HEIGHT * 0.8;
+const picW = Math.min(maxWidth, Math.floor((maxHeight / 8) * 6));
+const picH = Math.min(maxHeight, Math.floor((picW / 6) * 8));
+const NUM_OF_PARTICLES = Math.floor(picW * picH);
+const VelocityLimit = 20;
+let isMove = 0;
+
+document.getElementById("app")?.addEventListener("click", () => {
+  isMove = 1.0;
+  document.getElementById("click")?.setAttribute("hidden", "true");
+});
 
 function main() {
   const engine = new Engine(WIDTH, HEIGHT);
@@ -29,43 +39,39 @@ function main() {
   const updatePositionProgram = new UpdatePosition(gl);
   const drawParticlesProgram = new DrawParticles(gl);
 
-  const NUM_OF_PARTICLES = picW * picH;
-  const positions = new Float32Array(
-    drawPointsInGrid(WIDTH, HEIGHT, picW, picH)
-  );
+  const vertices = drawPointsInGrid(WIDTH, HEIGHT, picW, picH);
+  const positions = new Float32Array(vertices.positions);
+  const texs = new Float32Array(vertices.texs);
   const velocities = new Float32Array(
     createPoints(NUM_OF_PARTICLES, [
-      [-0, 0],
-      [-0, 0],
+      [-VelocityLimit, VelocityLimit],
+      [-VelocityLimit, VelocityLimit],
     ])
   );
 
   const position1Buffer = engine.makeBuffer(positions, gl.DYNAMIC_DRAW);
   const position2Buffer = engine.makeBuffer(positions, gl.DYNAMIC_DRAW);
+  const texBuffer = engine.makeBuffer(texs, gl.DYNAMIC_DRAW);
   const velocityBuffer = engine.makeBuffer(velocities, gl.STATIC_DRAW);
 
   const updatePositionVA1 = engine.makeVertexArray([
-    [position1Buffer!, [updatePositionProgram.oldPosition]],
-    [velocityBuffer!, [updatePositionProgram.velocity]],
+    [position1Buffer!, updatePositionProgram.oldPosition],
+    [velocityBuffer!, updatePositionProgram.velocity],
   ]);
 
   const updatePositionVA2 = engine.makeVertexArray([
-    [position2Buffer!, [updatePositionProgram.oldPosition]],
-    [velocityBuffer!, [updatePositionProgram.velocity]],
+    [position2Buffer!, updatePositionProgram.oldPosition],
+    [velocityBuffer!, updatePositionProgram.velocity],
   ]);
 
   const drawVA1 = engine.makeVertexArray([
-    [
-      position1Buffer!,
-      [drawParticlesProgram.position, drawParticlesProgram.texPos],
-    ],
+    [position1Buffer!, drawParticlesProgram.position],
+    [texBuffer!, drawParticlesProgram.texPos],
   ]);
 
   const drawVA2 = engine.makeVertexArray([
-    [
-      position2Buffer!,
-      [drawParticlesProgram.position, drawParticlesProgram.texPos],
-    ],
+    [position2Buffer!, drawParticlesProgram.position],
+    [texBuffer!, drawParticlesProgram.texPos],
   ]);
 
   const tf1 = engine.makeTransformFeedback(position1Buffer!);
@@ -108,7 +114,7 @@ function main() {
       gl.canvas.height
     );
     gl.uniform1f(updatePositionProgram.deltaTime, deltaTime);
-
+    gl.uniform1f(updatePositionProgram.isMove, isMove);
     gl.enable(gl.RASTERIZER_DISCARD);
 
     gl.bindTransformFeedback(gl.TRANSFORM_FEEDBACK, current.tf);

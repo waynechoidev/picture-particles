@@ -2,8 +2,9 @@ export const updatePositionVS = `#version 300 es
   in vec2 oldPosition;
   in vec2 velocity;
 
-  uniform float deltaTime;
   uniform vec2 canvasDimensions;
+  uniform float deltaTime;
+  uniform float isMove;
 
   out vec2 newPosition;
 
@@ -13,7 +14,7 @@ export const updatePositionVS = `#version 300 es
 
   void main() {
     newPosition = euclideanModulo(
-        oldPosition + velocity * deltaTime,
+        oldPosition + velocity * deltaTime * isMove,
         canvasDimensions);
   }
   `;

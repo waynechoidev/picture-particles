@@ -22,22 +22,22 @@ export const drawPointsInGrid = (
   const startY: number = Math.floor((HEIGHT - picHeight) / 2);
 
   // 점들을 담을 배열 초기화
-  const points: number[] = [];
+  const positions: number[] = [];
+  const texs: number[] = [];
 
   // 그림을 커버하는 범위 내에서 점 찍기
   for (let y = startY; y < startY + picHeight; y++) {
     for (let x = startX; x < startX + picWidth; x++) {
-      points.push(x, y);
-      points.push(x, y);
+      positions.push(x, y);
 
-      // points.push(
-      //   (x - (WIDTH - picWidth) / 2.0) / picWidth,
-      //   (x - (HEIGHT - picHeight) / 2.0) / picHeight
-      // );
+      texs.push(
+        (x - (WIDTH - picWidth) / 2.0) / picWidth,
+        1 - (y - (HEIGHT - picHeight) / 2.0) / picHeight
+      );
     }
   }
 
-  return points;
+  return { positions, texs };
 };
 
 export const orthographic = (

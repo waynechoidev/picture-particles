@@ -6,6 +6,7 @@ export class UpdatePosition extends Program {
   private _velocity: number;
   private _canvasDimensions: WebGLUniformLocation;
   private _deltaTime: WebGLUniformLocation;
+  private _isMove: WebGLUniformLocation;
 
   constructor(gl: WebGL2RenderingContext) {
     super(gl, updatePositionVS, updatePositionFS, ["newPosition"]);
@@ -14,6 +15,7 @@ export class UpdatePosition extends Program {
     this._velocity = this.addAttrib("velocity");
     this._canvasDimensions = this.addUniform("canvasDimensions");
     this._deltaTime = this.addUniform("deltaTime");
+    this._isMove = this.addUniform("isMove");
   }
   get oldPosition() {
     return this._oldPosition;
@@ -26,5 +28,8 @@ export class UpdatePosition extends Program {
   }
   get deltaTime() {
     return this._deltaTime;
+  }
+  get isMove() {
+    return this._isMove;
   }
 }

@@ -16,22 +16,20 @@ export class Engine {
     return this._gl;
   }
 
-  makeVertexArray(bufLocPairs: [WebGLBuffer, number[]][]) {
+  makeVertexArray(bufLocPairs: [WebGLBuffer, number][]) {
     const va = this._gl.createVertexArray();
     this._gl.bindVertexArray(va);
     for (const [buffer, loc] of bufLocPairs) {
       this._gl.bindBuffer(this._gl.ARRAY_BUFFER, buffer);
-      for (let i = 0; i < loc.length; i++) {
-        this._gl.enableVertexAttribArray(loc[i]);
-        this._gl.vertexAttribPointer(
-          loc[i], // attribute location
-          2, // number of elements
-          this._gl.FLOAT, // type of data
-          false, // normalize
-          0, // stride (0 = auto)
-          4 * 2 * i // offset
-        );
-      }
+      this._gl.enableVertexAttribArray(loc);
+      this._gl.vertexAttribPointer(
+        loc, // attribute location
+        2, // number of elements
+        this._gl.FLOAT, // type of data
+        false, // normalize
+        0, // stride (0 = auto)
+        0 // offset
+      );
     }
     return va;
   }
